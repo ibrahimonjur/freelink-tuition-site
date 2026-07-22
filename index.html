@@ -101,6 +101,9 @@
     border:1.5px solid var(--stamp-red);
     border-radius:20px; padding:3px 9px;
   }
+  .brand-logo{ height:38px; width:auto; display:block; }
+  .navcta-ghost{ background:transparent; color:var(--ink); border:1.5px solid var(--ink); }
+  .navcta-ghost:hover{ background:var(--paper-dark); }
   nav.pages{ display:flex; gap:6px; flex-wrap:wrap; }
   nav.pages a{
     font-size:0.85rem; font-weight:600;
@@ -306,6 +309,37 @@
   .form-note{ font-size:0.82rem; color:var(--ink-soft); }
   .honey{ position:absolute; left:-9999px; opacity:0; height:0; width:0; }
 
+  .verify-gate{ display:flex; flex-direction:column; gap:14px; margin-top:6px; }
+  .recaptcha-box{ transform-origin:left top; }
+  .code-section{ display:flex; flex-direction:column; gap:14px; }
+  .gate-msg{ font-size:0.85rem; color:var(--stamp-red); min-height:1.2em; }
+  .verify-gate .btn{ width:fit-content; }
+
+  .modal-backdrop{
+    position:fixed; inset:0; background:rgba(20,36,63,0.55);
+    display:flex; align-items:center; justify-content:center;
+    z-index:100; padding:20px;
+  }
+  .modal-box{
+    background:var(--paper); border:2px solid var(--ink); border-radius:12px;
+    padding:32px; max-width:440px; width:100%; position:relative;
+    max-height:85vh; overflow-y:auto;
+  }
+  .modal-close{
+    position:absolute; top:14px; right:16px; background:none; border:none;
+    font-size:1.6rem; line-height:1; cursor:pointer; color:var(--ink-soft);
+  }
+  .modal-close:hover{ color:var(--stamp-red); }
+  .login-result-item{
+    border:1.5px solid var(--ink); border-radius:8px; padding:14px 16px; margin-bottom:10px;
+    background:var(--paper-dark);
+  }
+  .login-result-item .role-tag{
+    font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em;
+    color:var(--stamp-red);
+  }
+  .login-result-item .when{ font-size:0.8rem; color:var(--ink-soft); margin-top:4px; }
+
   /* ---------- footer ---------- */
   footer{
     background:var(--ink); color:var(--paper);
@@ -344,7 +378,7 @@
 
 <header>
   <div class="navrow">
-    <div class="brand">FreeLink Tuition <span class="tag">0% commission</span></div>
+    <div class="brand"><img src="freelink-logo.png" alt="FreeLink Tuition" class="brand-logo"> <span class="tag">0% commission</span></div>
     <nav class="pages">
       <a href="#home"><span class="num">01</span>Home</a>
       <a href="#how"><span class="num">02</span>How it works</a>
@@ -352,9 +386,31 @@
       <a href="#join"><span class="num">04</span>Join</a>
       <a href="#contact"><span class="num">05</span>Contact</a>
     </nav>
-    <a class="navcta" href="#join">Get started</a>
+    <div style="display:flex; gap:10px; align-items:center;">
+      <button type="button" class="navcta navcta-ghost" id="open-login">Log in</button>
+      <a class="navcta" href="#join">Get started</a>
+    </div>
   </div>
 </header>
+
+<div class="modal-backdrop" id="login-backdrop" style="display:none;">
+  <div class="modal-box">
+    <button type="button" class="modal-close" id="close-login">&times;</button>
+    <h3>Log in to FreeLink</h3>
+    <p style="color:var(--ink-soft); font-size:0.9rem; margin-top:6px;">Use the same email you registered with to see your submission.</p>
+    <div id="login-gate" class="verify-gate" style="margin-top:18px;">
+      <div class="field"><label for="login-email">Your email</label><input id="login-email" type="email" placeholder="e.g. rahima@gmail.com"></div>
+      <div id="login-recaptcha" class="recaptcha-box"></div>
+      <button type="button" class="btn btn-primary" id="login-send-otp">Send code</button>
+      <div id="login-code-section" class="code-section" style="display:none;">
+        <div class="field"><label for="login-code">Code from your email</label><input id="login-code" type="text" inputmode="numeric" placeholder="6-digit code"></div>
+        <button type="button" class="btn btn-primary" id="login-verify-otp">Verify</button>
+      </div>
+      <p class="gate-msg" id="login-gate-msg"></p>
+    </div>
+    <div id="login-results" style="display:none; margin-top:18px;"></div>
+  </div>
+</div>
 
 <section id="home" class="hero ruled margined">
   <div class="wrap" style="padding-left:0;">
@@ -447,8 +503,21 @@
         <div class="tab-label">For guardians</div>
         <h3>Find a tutor</h3>
         <p>Search by subject, area, and budget, then reach out directly. No fee, ever.</p>
-        <form class="join-form" action="https://script.google.com/macros/s/AKfycbxQMyeqhErZ4hwABj4x_aTUUJq0LSzQXeHpv9CtuSLw1DTo609WglekyIo3VnLOdgHgyQ/exec" method="POST" target="hidden_iframe">
+
+        <div class="verify-gate" id="g-gate">
+          <div class="field"><label for="g-gate-email">Your email</label><input id="g-gate-email" type="email" placeholder="e.g. rahima@gmail.com"></div>
+          <div id="g-recaptcha" class="recaptcha-box"></div>
+          <button type="button" class="btn btn-primary" id="g-send-otp">Send code</button>
+          <div id="g-code-section" class="code-section" style="display:none;">
+            <div class="field"><label for="g-gate-code">Code from your email</label><input id="g-gate-code" type="text" inputmode="numeric" placeholder="6-digit code"></div>
+            <button type="button" class="btn btn-primary" id="g-verify-otp">Verify</button>
+          </div>
+          <p class="gate-msg" id="g-gate-msg"></p>
+        </div>
+
+        <form class="join-form" data-role="guardian" id="g-form-wrap" style="display:none;" action="https://script.google.com/macros/s/AKfycbxQMyeqhErZ4hwABj4x_aTUUJq0LSzQXeHpv9CtuSLw1DTo609WglekyIo3VnLOdgHgyQ/exec" method="POST" target="hidden_iframe">
           <input type="hidden" name="form" value="guardian">
+          <input type="hidden" id="g-user-email" name="_user_email" value="">
           <input type="text" name="_honey" class="honey" tabindex="-1" autocomplete="off">
           <div class="field"><label for="g-name">Your name</label><input id="g-name" type="text" name="Name" placeholder="e.g. Rahima Begum" required></div>
           <div class="field"><label for="g-phone">Phone number</label><input id="g-phone" type="tel" name="Phone" placeholder="01XXXXXXXXX" required></div>
@@ -467,8 +536,21 @@
         <div class="tab-label">For tutors</div>
         <h3>Become a tutor</h3>
         <p>List what you teach and where. Keep every taka you earn from your students.</p>
-        <form class="join-form" action="https://script.google.com/macros/s/AKfycbxQMyeqhErZ4hwABj4x_aTUUJq0LSzQXeHpv9CtuSLw1DTo609WglekyIo3VnLOdgHgyQ/exec" method="POST" target="hidden_iframe">
+
+        <div class="verify-gate" id="t-gate">
+          <div class="field"><label for="t-gate-email">Your email</label><input id="t-gate-email" type="email" placeholder="e.g. arif@gmail.com"></div>
+          <div id="t-recaptcha" class="recaptcha-box"></div>
+          <button type="button" class="btn btn-primary" id="t-send-otp">Send code</button>
+          <div id="t-code-section" class="code-section" style="display:none;">
+            <div class="field"><label for="t-gate-code">Code from your email</label><input id="t-gate-code" type="text" inputmode="numeric" placeholder="6-digit code"></div>
+            <button type="button" class="btn btn-primary" id="t-verify-otp">Verify</button>
+          </div>
+          <p class="gate-msg" id="t-gate-msg"></p>
+        </div>
+
+        <form class="join-form" data-role="tutor" id="t-form-wrap" style="display:none;" action="https://script.google.com/macros/s/AKfycbxQMyeqhErZ4hwABj4x_aTUUJq0LSzQXeHpv9CtuSLw1DTo609WglekyIo3VnLOdgHgyQ/exec" method="POST" target="hidden_iframe">
           <input type="hidden" name="form" value="tutor">
+          <input type="hidden" id="t-user-email" name="_user_email" value="">
           <input type="text" name="_honey" class="honey" tabindex="-1" autocomplete="off">
           <div class="field"><label for="t-name">Your name</label><input id="t-name" type="text" name="Name" placeholder="e.g. Arif Hasan" required></div>
           <div class="field"><label for="t-phone">Phone number</label><input id="t-phone" type="tel" name="Phone" placeholder="01XXXXXXXXX" required></div>
@@ -522,6 +604,9 @@
 
 <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://www.google.com/recaptcha/api.js?render=explicit&onload=onRecaptchaLoad" async defer></script>
+
 <script>
   const revealEls = document.querySelectorAll('.reveal');
   const io = new IntersectionObserver((entries) => {
@@ -529,8 +614,117 @@
   }, { threshold: 0.15 });
   revealEls.forEach(el => io.observe(el));
 
+  const SUPABASE_URL = 'https://aqxxhskxspopyoqudniw.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFxeHhoc2t4c3BvcHlvcXVkbml3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3NDUzNDksImV4cCI6MjEwMDMyMTM0OX0.FpdLE95boHpS4ujGAVkm8d-mWb-gYuJCV_j2EC63iw4';
+  const RECAPTCHA_SITE_KEY = '6Ld1i2AtAAAAAKrqo-BEEr87q2xcwVGTUhX4NTpI';
+  const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  window.recaptchaIds = {};
+  window.onRecaptchaLoad = function(){
+    window.recaptchaIds.g = grecaptcha.render('g-recaptcha', { sitekey: RECAPTCHA_SITE_KEY });
+    window.recaptchaIds.t = grecaptcha.render('t-recaptcha', { sitekey: RECAPTCHA_SITE_KEY });
+    window.recaptchaIds.login = grecaptcha.render('login-recaptcha', { sitekey: RECAPTCHA_SITE_KEY });
+  };
+
+  function setupGate(prefix, onVerified){
+    const gate = document.getElementById(prefix + '-gate');
+    const emailInput = document.getElementById(prefix + '-gate-email');
+    const sendBtn = document.getElementById(prefix + '-send-otp');
+    const codeSection = document.getElementById(prefix + '-code-section');
+    const codeInput = document.getElementById(prefix + '-gate-code');
+    const verifyBtn = document.getElementById(prefix + '-verify-otp');
+    const msg = document.getElementById(prefix + '-gate-msg');
+
+    sendBtn.addEventListener('click', async () => {
+      const email = emailInput.value.trim();
+      msg.style.color = 'var(--stamp-red)';
+      if(!email || !email.includes('@')){ msg.textContent = 'Enter a valid email first.'; return; }
+      const captchaResp = window.grecaptcha ? grecaptcha.getResponse(window.recaptchaIds[prefix]) : '';
+      if(!captchaResp){ msg.textContent = 'Please check the box above to confirm you are not a robot.'; return; }
+      sendBtn.disabled = true; sendBtn.textContent = 'Sending...';
+      const { error } = await sbClient.auth.signInWithOtp({ email, options: { shouldCreateUser: true } });
+      sendBtn.disabled = false;
+      if(error){ msg.textContent = error.message; return; }
+      sendBtn.textContent = 'Resend code';
+      codeSection.style.display = 'flex';
+      msg.style.color = 'var(--brand)';
+      msg.textContent = 'Code sent. Check your email inbox (and spam folder).';
+    });
+
+    verifyBtn.addEventListener('click', async () => {
+      const email = emailInput.value.trim();
+      const token = codeInput.value.trim();
+      msg.style.color = 'var(--stamp-red)';
+      if(!token){ msg.textContent = 'Enter the code from your email.'; return; }
+      verifyBtn.disabled = true; verifyBtn.textContent = 'Verifying...';
+      const { error } = await sbClient.auth.verifyOtp({ email, token, type: 'email' });
+      verifyBtn.disabled = false; verifyBtn.textContent = 'Verify';
+      if(error){ msg.textContent = 'That code is incorrect or has expired. Try sending a new one.'; return; }
+      gate.style.display = 'none';
+      onVerified(email);
+    });
+  }
+
+  setupGate('g', (email) => {
+    document.getElementById('g-user-email').value = email;
+    document.getElementById('g-form-wrap').style.display = 'flex';
+  });
+
+  setupGate('t', (email) => {
+    document.getElementById('t-user-email').value = email;
+    document.getElementById('t-form-wrap').style.display = 'flex';
+  });
+
+  setupGate('login', async (email) => {
+    const resultsBox = document.getElementById('login-results');
+    resultsBox.style.display = 'block';
+    resultsBox.innerHTML = '<p style="color:var(--ink-soft);">Loading your submissions...</p>';
+    const { data, error } = await sbClient.from('registrations').select('*').eq('user_email', email).order('created_at', { ascending: false });
+    if(error || !data || data.length === 0){
+      resultsBox.innerHTML = '<p style="color:var(--ink-soft);">No registrations found for this email yet.</p>';
+      return;
+    }
+    resultsBox.innerHTML = data.map(row => {
+      const when = new Date(row.created_at).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+      return '<div class="login-result-item"><div class="role-tag">' + (row.role === 'tutor' ? 'Tutor registration' : 'Guardian registration') + '</div><div style="font-weight:700; margin-top:4px;">' + (row.name || 'No name given') + '</div><div class="when">Submitted ' + when + '</div></div>';
+    }).join('');
+  });
+
+  const loginBackdrop = document.getElementById('login-backdrop');
+  document.getElementById('open-login').addEventListener('click', () => { loginBackdrop.style.display = 'flex'; });
+  document.getElementById('close-login').addEventListener('click', () => { loginBackdrop.style.display = 'none'; });
+  loginBackdrop.addEventListener('click', (e) => { if(e.target === loginBackdrop) loginBackdrop.style.display = 'none'; });
+
   document.querySelectorAll('.join-form').forEach(form => {
-    form.addEventListener('submit', function(){
+    form.addEventListener('submit', async function(e){
+      e.preventDefault();
+      if(form.querySelector('.honey').value) return;
+      const btn = form.querySelector('button[type="submit"]');
+      const originalLabel = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Submitting...';
+
+      const role = form.dataset.role;
+      const fd = new FormData(form);
+      const details = {};
+      fd.forEach((v, k) => { if(!['form', '_honey', '_user_email'].includes(k)) details[k] = v; });
+
+      const { error } = await sbClient.from('registrations').insert({
+        role: role,
+        user_email: fd.get('_user_email'),
+        name: fd.get('Name'),
+        phone: fd.get('Phone'),
+        details: details
+      });
+
+      if(error){
+        btn.disabled = false; btn.textContent = originalLabel;
+        alert('Something went wrong saving your registration. Please try again in a moment.');
+        return;
+      }
+
+      // Mirror to the existing email/sheet workflow too
+      form.submit();
+
       setTimeout(() => {
         form.style.display = 'none';
         const msg = document.createElement('p');
@@ -539,7 +733,7 @@
         msg.style.color = 'var(--brand)';
         msg.style.marginTop = '6px';
         form.parentNode.insertBefore(msg, form.nextSibling);
-      }, 700);
+      }, 500);
     });
   });
 </script>
