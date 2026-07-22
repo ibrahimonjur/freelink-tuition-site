@@ -447,10 +447,8 @@
         <div class="tab-label">For guardians</div>
         <h3>Find a tutor</h3>
         <p>Search by subject, area, and budget, then reach out directly. No fee, ever.</p>
-        <form class="join-form" action="https://formsubmit.co/freelinktuitions@gmail.com" method="POST">
-          <input type="hidden" name="_subject" value="New guardian registration - FreeLink Tuition">
-          <input type="hidden" name="_template" value="table">
-          <input type="hidden" name="_captcha" value="false">
+        <form class="join-form" action="https://script.google.com/macros/s/AKfycbxQMyeqhErZ4hwABj4x_aTUUJq0LSzQXeHpv9CtuSLw1DTo609WglekyIo3VnLOdgHgyQ/exec" method="POST" target="hidden_iframe">
+          <input type="hidden" name="form" value="guardian">
           <input type="text" name="_honey" class="honey" tabindex="-1" autocomplete="off">
           <div class="field"><label for="g-name">Your name</label><input id="g-name" type="text" name="Name" placeholder="e.g. Rahima Begum" required></div>
           <div class="field"><label for="g-phone">Phone number</label><input id="g-phone" type="tel" name="Phone" placeholder="01XXXXXXXXX" required></div>
@@ -470,10 +468,8 @@
         <div class="tab-label">For tutors</div>
         <h3>Become a tutor</h3>
         <p>List what you teach and where. Keep every taka you earn from your students.</p>
-        <form class="join-form" action="https://formsubmit.co/freelinktuitions@gmail.com" method="POST">
-          <input type="hidden" name="_subject" value="New tutor registration - FreeLink Tuition">
-          <input type="hidden" name="_template" value="table">
-          <input type="hidden" name="_captcha" value="false">
+        <form class="join-form" action="https://script.google.com/macros/s/AKfycbxQMyeqhErZ4hwABj4x_aTUUJq0LSzQXeHpv9CtuSLw1DTo609WglekyIo3VnLOdgHgyQ/exec" method="POST" target="hidden_iframe">
+          <input type="hidden" name="form" value="tutor">
           <input type="text" name="_honey" class="honey" tabindex="-1" autocomplete="off">
           <div class="field"><label for="t-name">Your name</label><input id="t-name" type="text" name="Name" placeholder="e.g. Arif Hasan" required></div>
           <div class="field"><label for="t-phone">Phone number</label><input id="t-phone" type="tel" name="Phone" placeholder="01XXXXXXXXX" required></div>
@@ -526,12 +522,28 @@
   </div>
 </footer>
 
+<iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+
 <script>
   const revealEls = document.querySelectorAll('.reveal');
   const io = new IntersectionObserver((entries) => {
     entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target); } });
   }, { threshold: 0.15 });
   revealEls.forEach(el => io.observe(el));
+
+  document.querySelectorAll('.join-form').forEach(form => {
+    form.addEventListener('submit', function(){
+      setTimeout(() => {
+        form.style.display = 'none';
+        const msg = document.createElement('p');
+        msg.textContent = 'Thanks! We got your registration and will be in touch soon.';
+        msg.style.fontWeight = '700';
+        msg.style.color = 'var(--brand)';
+        msg.style.marginTop = '6px';
+        form.parentNode.insertBefore(msg, form.nextSibling);
+      }, 700);
+    });
+  });
 </script>
 
 </body>
