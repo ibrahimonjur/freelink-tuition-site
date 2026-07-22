@@ -148,13 +148,11 @@
     line-height:1.06;
   }
   h1.headline .strike{
-    position:relative; color:var(--ink-soft);
-  }
-  h1.headline .strike::after{
-    content:"";
-    position:absolute; left:-2%; right:-2%; top:52%;
-    height:3px; background:var(--margin-red);
-    transform:rotate(-2deg);
+    color:var(--ink-soft);
+    text-decoration: line-through;
+    text-decoration-color: var(--margin-red);
+    text-decoration-thickness: 3px;
+    text-decoration-skip-ink: none;
   }
   h1.headline .corrected{
     color:var(--stamp-red);
@@ -399,13 +397,9 @@
     <h3>Log in to FreeLink</h3>
     <p style="color:var(--ink-soft); font-size:0.9rem; margin-top:6px;">Use the same email you registered with to see your submission.</p>
     <div id="login-gate" class="verify-gate" style="margin-top:18px;">
-      <div class="field"><label for="login-email">Your email</label><input id="login-email" type="email" placeholder="e.g. rahima@gmail.com"></div>
+      <div class="field"><label for="login-gate-email">Your email</label><input id="login-gate-email" type="email" placeholder="e.g. rahima@gmail.com"></div>
       <div id="login-recaptcha" class="recaptcha-box"></div>
-      <button type="button" class="btn btn-primary" id="login-send-otp">Send code</button>
-      <div id="login-code-section" class="code-section" style="display:none;">
-        <div class="field"><label for="login-code">Code from your email</label><input id="login-code" type="text" inputmode="numeric" placeholder="6-digit code"></div>
-        <button type="button" class="btn btn-primary" id="login-verify-otp">Verify</button>
-      </div>
+      <button type="button" class="btn btn-primary" id="login-send-otp">Send verification link</button>
       <p class="gate-msg" id="login-gate-msg"></p>
     </div>
     <div id="login-results" style="display:none; margin-top:18px;"></div>
@@ -507,11 +501,7 @@
         <div class="verify-gate" id="g-gate">
           <div class="field"><label for="g-gate-email">Your email</label><input id="g-gate-email" type="email" placeholder="e.g. rahima@gmail.com"></div>
           <div id="g-recaptcha" class="recaptcha-box"></div>
-          <button type="button" class="btn btn-primary" id="g-send-otp">Send code</button>
-          <div id="g-code-section" class="code-section" style="display:none;">
-            <div class="field"><label for="g-gate-code">Code from your email</label><input id="g-gate-code" type="text" inputmode="numeric" placeholder="6-digit code"></div>
-            <button type="button" class="btn btn-primary" id="g-verify-otp">Verify</button>
-          </div>
+          <button type="button" class="btn btn-primary" id="g-send-otp">Send verification link</button>
           <p class="gate-msg" id="g-gate-msg"></p>
         </div>
 
@@ -540,11 +530,7 @@
         <div class="verify-gate" id="t-gate">
           <div class="field"><label for="t-gate-email">Your email</label><input id="t-gate-email" type="email" placeholder="e.g. arif@gmail.com"></div>
           <div id="t-recaptcha" class="recaptcha-box"></div>
-          <button type="button" class="btn btn-primary" id="t-send-otp">Send code</button>
-          <div id="t-code-section" class="code-section" style="display:none;">
-            <div class="field"><label for="t-gate-code">Code from your email</label><input id="t-gate-code" type="text" inputmode="numeric" placeholder="6-digit code"></div>
-            <button type="button" class="btn btn-primary" id="t-verify-otp">Verify</button>
-          </div>
+          <button type="button" class="btn btn-primary" id="t-send-otp">Send verification link</button>
           <p class="gate-msg" id="t-gate-msg"></p>
         </div>
 
@@ -626,13 +612,9 @@
     window.recaptchaIds.login = grecaptcha.render('login-recaptcha', { sitekey: RECAPTCHA_SITE_KEY });
   };
 
-  function setupGate(prefix, onVerified){
-    const gate = document.getElementById(prefix + '-gate');
+  function setupGate(prefix){
     const emailInput = document.getElementById(prefix + '-gate-email');
     const sendBtn = document.getElementById(prefix + '-send-otp');
-    const codeSection = document.getElementById(prefix + '-code-section');
-    const codeInput = document.getElementById(prefix + '-gate-code');
-    const verifyBtn = document.getElementById(prefix + '-verify-otp');
     const msg = document.getElementById(prefix + '-gate-msg');
 
     sendBtn.addEventListener('click', async () => {
@@ -642,40 +624,43 @@
       const captchaResp = window.grecaptcha ? grecaptcha.getResponse(window.recaptchaIds[prefix]) : '';
       if(!captchaResp){ msg.textContent = 'Please check the box above to confirm you are not a robot.'; return; }
       sendBtn.disabled = true; sendBtn.textContent = 'Sending...';
-      const { error } = await sbClient.auth.signInWithOtp({ email, options: { shouldCreateUser: true } });
+      localStorage.setItem('freelink_pending', prefix);
+      const { error } = await sbClient.auth.signInWithOtp({
+        email,
+        options: { shouldCreateUser: true, emailRedirectTo: window.location.origin + window.location.pathname }
+      });
       sendBtn.disabled = false;
-      if(error){ msg.textContent = error.message; return; }
-      sendBtn.textContent = 'Resend code';
-      codeSection.style.display = 'flex';
+      if(error){ msg.textContent = error.message; localStorage.removeItem('freelink_pending'); return; }
+      sendBtn.textContent = 'Resend link';
       msg.style.color = 'var(--brand)';
-      msg.textContent = 'Code sent. Check your email inbox (and spam folder).';
-    });
-
-    verifyBtn.addEventListener('click', async () => {
-      const email = emailInput.value.trim();
-      const token = codeInput.value.trim();
-      msg.style.color = 'var(--stamp-red)';
-      if(!token){ msg.textContent = 'Enter the code from your email.'; return; }
-      verifyBtn.disabled = true; verifyBtn.textContent = 'Verifying...';
-      const { error } = await sbClient.auth.verifyOtp({ email, token, type: 'email' });
-      verifyBtn.disabled = false; verifyBtn.textContent = 'Verify';
-      if(error){ msg.textContent = 'That code is incorrect or has expired. Try sending a new one.'; return; }
-      gate.style.display = 'none';
-      onVerified(email);
+      msg.textContent = 'Check your email (and spam folder) and click the link inside. It will bring you back here automatically, verified.';
     });
   }
 
-  setupGate('g', (email) => {
-    document.getElementById('g-user-email').value = email;
-    document.getElementById('g-form-wrap').style.display = 'flex';
-  });
+  setupGate('g');
+  setupGate('t');
+  setupGate('login');
 
-  setupGate('t', (email) => {
-    document.getElementById('t-user-email').value = email;
-    document.getElementById('t-form-wrap').style.display = 'flex';
-  });
+  async function applySessionState(){
+    const { data: { session } } = await sbClient.auth.getSession();
+    if(!session || !session.user || !session.user.email) return;
+    const email = session.user.email;
+    const pending = localStorage.getItem('freelink_pending');
+    if(pending === 'g' || pending === 't'){
+      document.getElementById(pending + '-user-email').value = email;
+      document.getElementById(pending + '-gate').style.display = 'none';
+      document.getElementById(pending + '-form-wrap').style.display = 'flex';
+      localStorage.removeItem('freelink_pending');
+      document.getElementById('join').scrollIntoView({ behavior: 'smooth' });
+    } else if(pending === 'login'){
+      localStorage.removeItem('freelink_pending');
+      document.getElementById('login-backdrop').style.display = 'flex';
+      document.getElementById('login-gate').style.display = 'none';
+      await showLoginResults(email);
+    }
+  }
 
-  setupGate('login', async (email) => {
+  async function showLoginResults(email){
     const resultsBox = document.getElementById('login-results');
     resultsBox.style.display = 'block';
     resultsBox.innerHTML = '<p style="color:var(--ink-soft);">Loading your submissions...</p>';
@@ -688,10 +673,19 @@
       const when = new Date(row.created_at).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
       return '<div class="login-result-item"><div class="role-tag">' + (row.role === 'tutor' ? 'Tutor registration' : 'Guardian registration') + '</div><div style="font-weight:700; margin-top:4px;">' + (row.name || 'No name given') + '</div><div class="when">Submitted ' + when + '</div></div>';
     }).join('');
-  });
+  }
+
+  window.addEventListener('load', applySessionState);
 
   const loginBackdrop = document.getElementById('login-backdrop');
-  document.getElementById('open-login').addEventListener('click', () => { loginBackdrop.style.display = 'flex'; });
+  document.getElementById('open-login').addEventListener('click', async () => {
+    loginBackdrop.style.display = 'flex';
+    const { data: { session } } = await sbClient.auth.getSession();
+    if(session && session.user && session.user.email){
+      document.getElementById('login-gate').style.display = 'none';
+      await showLoginResults(session.user.email);
+    }
+  });
   document.getElementById('close-login').addEventListener('click', () => { loginBackdrop.style.display = 'none'; });
   loginBackdrop.addEventListener('click', (e) => { if(e.target === loginBackdrop) loginBackdrop.style.display = 'none'; });
 
