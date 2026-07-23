@@ -102,8 +102,6 @@
     border-radius:20px; padding:3px 9px;
   }
   .brand-logo{ height:38px; width:auto; display:block; }
-  .navcta-ghost{ background:transparent; color:var(--ink); border:1.5px solid var(--ink); }
-  .navcta-ghost:hover{ background:var(--paper-dark); }
   nav.pages{ display:flex; gap:6px; flex-wrap:wrap; }
   nav.pages a{
     font-size:0.85rem; font-weight:600;
@@ -275,6 +273,34 @@
   .check-item h3{ color:var(--chalk-text); font-size:1.05rem; margin-bottom:5px; }
   .check-item p{ color:#B9C3DE; font-size:0.9rem; }
 
+  /* ---------- open posts noticeboard ---------- */
+  .posts-list{ display:flex; flex-direction:column; gap:16px; }
+  .post-card{
+    border:1.5px solid var(--ink); border-radius:10px;
+    padding:22px 24px; background:var(--paper-dark);
+    display:flex; flex-direction:column; gap:10px;
+  }
+  .post-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap; }
+  .post-status{
+    font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em;
+    border-radius:20px; padding:4px 12px; white-space:nowrap;
+  }
+  .post-status.available{ background:var(--brand); color:var(--paper); }
+  .post-status.matched{ background:var(--chalk); color:var(--chalk-text); }
+  .post-status.unavailable{ background:transparent; color:var(--ink-soft); border:1.5px solid var(--ink-soft); }
+  .post-title{ font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:1.15rem; }
+  .post-meta{ display:flex; flex-wrap:wrap; gap:8px 18px; font-size:0.88rem; color:var(--ink-soft); }
+  .post-meta span b{ color:var(--ink); font-weight:600; }
+  .post-notes{ font-size:0.9rem; color:var(--ink-soft); }
+  .post-bottom{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-top:4px; }
+  .post-interest-count{ font-size:0.82rem; color:var(--ink-soft); }
+  .post-interest-form{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .post-interest-form input{
+    padding:8px 10px; border:1.5px solid var(--rule-blue); border-radius:6px;
+    font-family:'Inter', sans-serif; font-size:0.85rem; background:var(--paper);
+  }
+  .post-interest-form .btn{ padding:9px 16px; font-size:0.85rem; }
+
   /* ---------- join: two tabs ---------- */
   .join-grid{ display:grid; grid-template-columns:1fr 1fr; gap:24px; }
   @media (max-width:720px){ .join-grid{ grid-template-columns:1fr; } }
@@ -307,36 +333,6 @@
   .form-note{ font-size:0.82rem; color:var(--ink-soft); }
   .honey{ position:absolute; left:-9999px; opacity:0; height:0; width:0; }
 
-  .verify-gate{ display:flex; flex-direction:column; gap:14px; margin-top:6px; }
-  .recaptcha-box{ transform-origin:left top; }
-  .code-section{ display:flex; flex-direction:column; gap:14px; }
-  .gate-msg{ font-size:0.85rem; color:var(--stamp-red); min-height:1.2em; }
-  .verify-gate .btn{ width:fit-content; }
-
-  .modal-backdrop{
-    position:fixed; inset:0; background:rgba(20,36,63,0.55);
-    display:flex; align-items:center; justify-content:center;
-    z-index:100; padding:20px;
-  }
-  .modal-box{
-    background:var(--paper); border:2px solid var(--ink); border-radius:12px;
-    padding:32px; max-width:440px; width:100%; position:relative;
-    max-height:85vh; overflow-y:auto;
-  }
-  .modal-close{
-    position:absolute; top:14px; right:16px; background:none; border:none;
-    font-size:1.6rem; line-height:1; cursor:pointer; color:var(--ink-soft);
-  }
-  .modal-close:hover{ color:var(--stamp-red); }
-  .login-result-item{
-    border:1.5px solid var(--ink); border-radius:8px; padding:14px 16px; margin-bottom:10px;
-    background:var(--paper-dark);
-  }
-  .login-result-item .role-tag{
-    font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em;
-    color:var(--stamp-red);
-  }
-  .login-result-item .when{ font-size:0.8rem; color:var(--ink-soft); margin-top:4px; }
 
   /* ---------- footer ---------- */
   footer{
@@ -381,30 +377,13 @@
       <a href="#home"><span class="num">01</span>Home</a>
       <a href="#how"><span class="num">02</span>How it works</a>
       <a href="#why"><span class="num">03</span>Why us</a>
-      <a href="#join"><span class="num">04</span>Join</a>
-      <a href="#contact"><span class="num">05</span>Contact</a>
+      <a href="#posts"><span class="num">04</span>Posts</a>
+      <a href="#join"><span class="num">05</span>Join</a>
+      <a href="#contact"><span class="num">06</span>Contact</a>
     </nav>
-    <div style="display:flex; gap:10px; align-items:center;">
-      <button type="button" class="navcta navcta-ghost" id="open-login">Log in</button>
-      <a class="navcta" href="#join">Get started</a>
-    </div>
+    <a class="navcta" href="#join">Get started</a>
   </div>
 </header>
-
-<div class="modal-backdrop" id="login-backdrop" style="display:none;">
-  <div class="modal-box">
-    <button type="button" class="modal-close" id="close-login">&times;</button>
-    <h3>Log in to FreeLink</h3>
-    <p style="color:var(--ink-soft); font-size:0.9rem; margin-top:6px;">Use the same email you registered with to see your submission.</p>
-    <div id="login-gate" class="verify-gate" style="margin-top:18px;">
-      <div class="field"><label for="login-gate-email">Your email</label><input id="login-gate-email" type="email" placeholder="e.g. rahima@gmail.com"></div>
-      <div id="login-recaptcha" class="recaptcha-box"></div>
-      <button type="button" class="btn btn-primary" id="login-send-otp">Send verification link</button>
-      <p class="gate-msg" id="login-gate-msg"></p>
-    </div>
-    <div id="login-results" style="display:none; margin-top:18px;"></div>
-  </div>
-</div>
 
 <section id="home" class="hero ruled margined">
   <div class="wrap" style="padding-left:0;">
@@ -485,6 +464,19 @@
   </div>
 </section>
 
+<section id="posts">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">The noticeboard</div>
+      <h2>Open tuition posts</h2>
+      <p>Every request a guardian submits shows up here. Tutors can browse and mark interest. FreeLink follows up to confirm the match.</p>
+    </div>
+    <div id="posts-list" class="posts-list">
+      <p style="color:var(--ink-soft);">Loading open posts...</p>
+    </div>
+  </div>
+</section>
+
 <section id="join">
   <div class="wrap">
     <div class="section-head reveal">
@@ -498,19 +490,12 @@
         <h3>Find a tutor</h3>
         <p>Search by subject, area, and budget, then reach out directly. No fee, ever.</p>
 
-        <div class="verify-gate" id="g-gate">
-          <div class="field"><label for="g-gate-email">Your email</label><input id="g-gate-email" type="email" placeholder="e.g. rahima@gmail.com"></div>
-          <div id="g-recaptcha" class="recaptcha-box"></div>
-          <button type="button" class="btn btn-primary" id="g-send-otp">Send verification link</button>
-          <p class="gate-msg" id="g-gate-msg"></p>
-        </div>
-
-        <form class="join-form" data-role="guardian" id="g-form-wrap" style="display:none;" action="https://script.google.com/macros/s/AKfycbxQMyeqhErZ4hwABj4x_aTUUJq0LSzQXeHpv9CtuSLw1DTo609WglekyIo3VnLOdgHgyQ/exec" method="POST" target="hidden_iframe">
+        <form class="join-form" data-role="guardian" action="https://script.google.com/macros/s/AKfycbxQMyeqhErZ4hwABj4x_aTUUJq0LSzQXeHpv9CtuSLw1DTo609WglekyIo3VnLOdgHgyQ/exec" method="POST" target="hidden_iframe">
           <input type="hidden" name="form" value="guardian">
-          <input type="hidden" id="g-user-email" name="_user_email" value="">
           <input type="text" name="_honey" class="honey" tabindex="-1" autocomplete="off">
           <div class="field"><label for="g-name">Your name</label><input id="g-name" type="text" name="Name" placeholder="e.g. Rahima Begum" required></div>
           <div class="field"><label for="g-phone">Phone number</label><input id="g-phone" type="tel" name="Phone" placeholder="01XXXXXXXXX" required></div>
+          <div class="field"><label for="g-nid">NID or passport number</label><input id="g-nid" type="text" name="NID or passport number" placeholder="e.g. 1234567890" required></div>
           <div class="field"><label for="g-address">Exact address</label><input id="g-address" type="text" name="Exact address" placeholder="e.g. House 12, Road 4, Mirpur, Dhaka" required></div>
           <div class="field"><label for="g-subject">Subject(s) needed</label><input id="g-subject" type="text" name="Subjects needed" placeholder="e.g. Class 9 Math, Physics" required></div>
           <div class="field"><label for="g-curriculum">Curriculum</label><input id="g-curriculum" type="text" name="Curriculum" placeholder="e.g. Bangla medium, English medium, English version, Madrasah"></div>
@@ -527,19 +512,12 @@
         <h3>Become a tutor</h3>
         <p>List what you teach and where. Keep every taka you earn from your students.</p>
 
-        <div class="verify-gate" id="t-gate">
-          <div class="field"><label for="t-gate-email">Your email</label><input id="t-gate-email" type="email" placeholder="e.g. arif@gmail.com"></div>
-          <div id="t-recaptcha" class="recaptcha-box"></div>
-          <button type="button" class="btn btn-primary" id="t-send-otp">Send verification link</button>
-          <p class="gate-msg" id="t-gate-msg"></p>
-        </div>
-
-        <form class="join-form" data-role="tutor" id="t-form-wrap" style="display:none;" action="https://script.google.com/macros/s/AKfycbxQMyeqhErZ4hwABj4x_aTUUJq0LSzQXeHpv9CtuSLw1DTo609WglekyIo3VnLOdgHgyQ/exec" method="POST" target="hidden_iframe">
+        <form class="join-form" data-role="tutor" action="https://script.google.com/macros/s/AKfycbxQMyeqhErZ4hwABj4x_aTUUJq0LSzQXeHpv9CtuSLw1DTo609WglekyIo3VnLOdgHgyQ/exec" method="POST" target="hidden_iframe">
           <input type="hidden" name="form" value="tutor">
-          <input type="hidden" id="t-user-email" name="_user_email" value="">
           <input type="text" name="_honey" class="honey" tabindex="-1" autocomplete="off">
           <div class="field"><label for="t-name">Your name</label><input id="t-name" type="text" name="Name" placeholder="e.g. Arif Hasan" required></div>
           <div class="field"><label for="t-phone">Phone number</label><input id="t-phone" type="tel" name="Phone" placeholder="01XXXXXXXXX" required></div>
+          <div class="field"><label for="t-nid">NID or passport number</label><input id="t-nid" type="text" name="NID or passport number" placeholder="e.g. 1234567890" required></div>
           <div class="field"><label for="t-subject">Subject(s) you teach</label><input id="t-subject" type="text" name="Subjects taught" placeholder="e.g. English, Chemistry" required></div>
           <div class="field"><label for="t-address">Exact address</label><input id="t-address" type="text" name="Exact address" placeholder="e.g. House 12, Road 4, Chittagong" required></div>
           <div class="field"><label for="t-curriculum">Curriculum</label><input id="t-curriculum" type="text" name="Curriculum" placeholder="e.g. Bangla medium, English medium, English version, Madrasah"></div>
@@ -591,7 +569,6 @@
 <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="https://www.google.com/recaptcha/api.js?render=explicit&onload=onRecaptchaLoad" async defer></script>
 
 <script>
   const revealEls = document.querySelectorAll('.reveal');
@@ -600,125 +577,8 @@
   }, { threshold: 0.15 });
   revealEls.forEach(el => io.observe(el));
 
-  const SUPABASE_URL = 'https://aqxxhskxspopyoqudniw.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFxeHhoc2t4c3BvcHlvcXVkbml3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3NDUzNDksImV4cCI6MjEwMDMyMTM0OX0.FpdLE95boHpS4ujGAVkm8d-mWb-gYuJCV_j2EC63iw4';
-  const RECAPTCHA_SITE_KEY = '6Ld1i2AtAAAAAKrqo-BEEr87q2xcwVGTUhX4NTpI';
-  const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-  window.recaptchaIds = {};
-  window.onRecaptchaLoad = function(){
-    window.recaptchaIds.g = grecaptcha.render('g-recaptcha', { sitekey: RECAPTCHA_SITE_KEY });
-    window.recaptchaIds.t = grecaptcha.render('t-recaptcha', { sitekey: RECAPTCHA_SITE_KEY });
-    window.recaptchaIds.login = grecaptcha.render('login-recaptcha', { sitekey: RECAPTCHA_SITE_KEY });
-  };
-
-  function setupGate(prefix){
-    const emailInput = document.getElementById(prefix + '-gate-email');
-    const sendBtn = document.getElementById(prefix + '-send-otp');
-    const msg = document.getElementById(prefix + '-gate-msg');
-
-    sendBtn.addEventListener('click', async () => {
-      const email = emailInput.value.trim();
-      msg.style.color = 'var(--stamp-red)';
-      if(!email || !email.includes('@')){ msg.textContent = 'Enter a valid email first.'; return; }
-      const captchaResp = window.grecaptcha ? grecaptcha.getResponse(window.recaptchaIds[prefix]) : '';
-      if(!captchaResp){ msg.textContent = 'Please check the box above to confirm you are not a robot.'; return; }
-      sendBtn.disabled = true; sendBtn.textContent = 'Sending...';
-      localStorage.setItem('freelink_pending', prefix);
-      const { error } = await sbClient.auth.signInWithOtp({
-        email,
-        options: { shouldCreateUser: true, emailRedirectTo: window.location.origin + window.location.pathname }
-      });
-      sendBtn.disabled = false;
-      if(error){ msg.textContent = error.message; localStorage.removeItem('freelink_pending'); return; }
-      sendBtn.textContent = 'Resend link';
-      msg.style.color = 'var(--brand)';
-      msg.textContent = 'Check your email (and spam folder) and click the link inside. It will bring you back here automatically, verified.';
-    });
-  }
-
-  setupGate('g');
-  setupGate('t');
-  setupGate('login');
-
-  async function applySessionState(){
-    const { data: { session } } = await sbClient.auth.getSession();
-    if(!session || !session.user || !session.user.email) return;
-    const email = session.user.email;
-    const pending = localStorage.getItem('freelink_pending');
-    if(pending === 'g' || pending === 't'){
-      document.getElementById(pending + '-user-email').value = email;
-      document.getElementById(pending + '-gate').style.display = 'none';
-      document.getElementById(pending + '-form-wrap').style.display = 'flex';
-      localStorage.removeItem('freelink_pending');
-      document.getElementById('join').scrollIntoView({ behavior: 'smooth' });
-    } else if(pending === 'login'){
-      localStorage.removeItem('freelink_pending');
-      document.getElementById('login-backdrop').style.display = 'flex';
-      document.getElementById('login-gate').style.display = 'none';
-      await showLoginResults(email);
-    }
-  }
-
-  async function showLoginResults(email){
-    const resultsBox = document.getElementById('login-results');
-    resultsBox.style.display = 'block';
-    resultsBox.innerHTML = '<p style="color:var(--ink-soft);">Loading your submissions...</p>';
-    const { data, error } = await sbClient.from('registrations').select('*').eq('user_email', email).order('created_at', { ascending: false });
-    if(error || !data || data.length === 0){
-      resultsBox.innerHTML = '<p style="color:var(--ink-soft);">No registrations found for this email yet.</p>';
-      return;
-    }
-    resultsBox.innerHTML = data.map(row => {
-      const when = new Date(row.created_at).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
-      return '<div class="login-result-item"><div class="role-tag">' + (row.role === 'tutor' ? 'Tutor registration' : 'Guardian registration') + '</div><div style="font-weight:700; margin-top:4px;">' + (row.name || 'No name given') + '</div><div class="when">Submitted ' + when + '</div></div>';
-    }).join('');
-  }
-
-  window.addEventListener('load', applySessionState);
-
-  const loginBackdrop = document.getElementById('login-backdrop');
-  document.getElementById('open-login').addEventListener('click', async () => {
-    loginBackdrop.style.display = 'flex';
-    const { data: { session } } = await sbClient.auth.getSession();
-    if(session && session.user && session.user.email){
-      document.getElementById('login-gate').style.display = 'none';
-      await showLoginResults(session.user.email);
-    }
-  });
-  document.getElementById('close-login').addEventListener('click', () => { loginBackdrop.style.display = 'none'; });
-  loginBackdrop.addEventListener('click', (e) => { if(e.target === loginBackdrop) loginBackdrop.style.display = 'none'; });
-
   document.querySelectorAll('.join-form').forEach(form => {
-    form.addEventListener('submit', async function(e){
-      e.preventDefault();
-      if(form.querySelector('.honey').value) return;
-      const btn = form.querySelector('button[type="submit"]');
-      const originalLabel = btn.textContent;
-      btn.disabled = true; btn.textContent = 'Submitting...';
-
-      const role = form.dataset.role;
-      const fd = new FormData(form);
-      const details = {};
-      fd.forEach((v, k) => { if(!['form', '_honey', '_user_email'].includes(k)) details[k] = v; });
-
-      const { error } = await sbClient.from('registrations').insert({
-        role: role,
-        user_email: fd.get('_user_email'),
-        name: fd.get('Name'),
-        phone: fd.get('Phone'),
-        details: details
-      });
-
-      if(error){
-        btn.disabled = false; btn.textContent = originalLabel;
-        alert('Something went wrong saving your registration. Please try again in a moment.');
-        return;
-      }
-
-      // Mirror to the existing email/sheet workflow too
-      form.submit();
-
+    form.addEventListener('submit', function(){
       setTimeout(() => {
         form.style.display = 'none';
         const msg = document.createElement('p');
@@ -727,9 +587,136 @@
         msg.style.color = 'var(--brand)';
         msg.style.marginTop = '6px';
         form.parentNode.insertBefore(msg, form.nextSibling);
-      }, 500);
+      }, 700);
     });
   });
+
+  const SUPABASE_URL = 'https://aqxxhskxspopyoqudniw.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFxeHhoc2t4c3BvcHlvcXVkbml3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3NDUzNDksImV4cCI6MjEwMDMyMTM0OX0.FpdLE95boHpS4ujGAVkm8d-mWb-gYuJCV_j2EC63iw4';
+  const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // When a guardian registers, also create a public post
+  const guardianForm = document.querySelector('form[data-role="guardian"]');
+  if(guardianForm){
+    guardianForm.addEventListener('submit', function(){
+      const fd = new FormData(guardianForm);
+      sbClient.from('posts').insert({
+        guardian_name: fd.get('Name'),
+        guardian_phone: fd.get('Phone'),
+        guardian_address: fd.get('Exact address'),
+        subject: fd.get('Subjects needed'),
+        curriculum: fd.get('Curriculum'),
+        grade: fd.get('Grade'),
+        institution_name: fd.get('Institution name'),
+        budget: fd.get('Budget'),
+        start_date: fd.get('Preferred start date'),
+        notes: fd.get('Notes')
+      }).then(({ error }) => { if(error) console.error('Post creation failed:', error.message); });
+    });
+  }
+
+  // Load and render the open posts noticeboard
+  async function loadPosts(){
+    const listEl = document.getElementById('posts-list');
+    const { data, error } = await sbClient.from('posts_public').select('*').limit(100);
+    if(error){
+      listEl.innerHTML = '<p style="color:var(--ink-soft);">Could not load posts right now.</p>';
+      return;
+    }
+    if(!data || data.length === 0){
+      listEl.innerHTML = '<p style="color:var(--ink-soft);">No posts yet. Guardian requests will show up here.</p>';
+      return;
+    }
+    listEl.innerHTML = '';
+    data.forEach(post => {
+      const card = document.createElement('div');
+      card.className = 'post-card reveal visible';
+
+      const statusLabel = post.status === 'available' ? 'Available' : post.status === 'matched' ? 'Matched' : 'Unavailable';
+      const when = new Date(post.created_at).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+
+      let metaParts = [];
+      if(post.grade) metaParts.push('<span><b>Grade:</b> ' + escapeHtml(post.grade) + '</span>');
+      if(post.curriculum) metaParts.push('<span><b>Curriculum:</b> ' + escapeHtml(post.curriculum) + '</span>');
+      if(post.institution_name) metaParts.push('<span><b>Institution:</b> ' + escapeHtml(post.institution_name) + '</span>');
+      if(post.budget) metaParts.push('<span><b>Budget:</b> ' + escapeHtml(post.budget) + '</span>');
+      if(post.start_date) metaParts.push('<span><b>Start:</b> ' + escapeHtml(post.start_date) + '</span>');
+      metaParts.push('<span><b>Posted:</b> ' + when + '</span>');
+
+      card.innerHTML =
+        '<div class="post-top">' +
+          '<div class="post-title">' + escapeHtml(post.subject || 'Tuition needed') + '</div>' +
+          '<span class="post-status ' + post.status + '">' + statusLabel + '</span>' +
+        '</div>' +
+        '<div class="post-meta">' + metaParts.join('') + '</div>' +
+        (post.notes ? '<div class="post-notes">' + escapeHtml(post.notes) + '</div>' : '') +
+        '<div class="post-bottom">' +
+          '<div class="post-interest-count">' + (post.interest_count || 0) + ' tutor' + (post.interest_count === 1 ? '' : 's') + ' interested</div>' +
+          (post.status === 'available' ? interestFormHtml(post.id) : '') +
+        '</div>';
+
+      listEl.appendChild(card);
+
+      if(post.status === 'available'){
+        wireInterestForm(card, post.id);
+      }
+    });
+  }
+
+  function interestFormHtml(postId){
+    return '<div class="post-interest-form">' +
+      '<input type="text" class="int-name" placeholder="Your name" style="width:120px;">' +
+      '<input type="tel" class="int-phone" placeholder="Your phone" style="width:130px;">' +
+      '<button type="button" class="btn btn-primary int-btn">I\'m interested</button>' +
+      '</div>';
+  }
+
+  function wireInterestForm(card, postId){
+    const btn = card.querySelector('.int-btn');
+    const nameInput = card.querySelector('.int-name');
+    const phoneInput = card.querySelector('.int-phone');
+    btn.addEventListener('click', async () => {
+      const name = nameInput.value.trim();
+      const phone = phoneInput.value.trim();
+      if(!name || !phone){ alert('Please enter your name and phone number.'); return; }
+      btn.disabled = true; btn.textContent = 'Sending...';
+
+      const { error } = await sbClient.from('post_interests').insert({ post_id: postId, tutor_name: name, tutor_phone: phone });
+      if(error){
+        alert('Something went wrong. Please try again.');
+        btn.disabled = false; btn.textContent = "I'm interested";
+        return;
+      }
+
+      // Notify via the existing email workflow too
+      const hf = document.createElement('form');
+      hf.method = 'POST';
+      hf.action = 'https://script.google.com/macros/s/AKfycbxQMyeqhErZ4hwABj4x_aTUUJq0LSzQXeHpv9CtuSLw1DTo609WglekyIo3VnLOdgHgyQ/exec';
+      hf.target = 'hidden_iframe';
+      hf.style.display = 'none';
+      const fields = { form: 'interest', 'Tutor name': name, 'Tutor phone': phone, 'Post subject': card.querySelector('.post-title').textContent, 'Post ID': postId };
+      Object.keys(fields).forEach(k => {
+        const inp = document.createElement('input');
+        inp.name = k; inp.value = fields[k];
+        hf.appendChild(inp);
+      });
+      document.body.appendChild(hf);
+      hf.submit();
+
+      btn.textContent = 'Interest sent!';
+      const countEl = card.querySelector('.post-interest-count');
+      const current = parseInt(countEl.textContent) || 0;
+      countEl.textContent = (current + 1) + ' tutor' + (current + 1 === 1 ? '' : 's') + ' interested';
+    });
+  }
+
+  function escapeHtml(str){
+    const div = document.createElement('div');
+    div.textContent = str == null ? '' : str;
+    return div.innerHTML;
+  }
+
+  loadPosts();
 </script>
 
 </body>
