@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+]<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -598,26 +598,6 @@
     sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   } catch(err) {
     console.error('Supabase client failed to initialize:', err);
-  }
-
-  // When a guardian registers, also create a public post
-  const guardianForm = document.querySelector('form[data-role="guardian"]');
-  if(guardianForm){
-    guardianForm.addEventListener('submit', function(){
-      const fd = new FormData(guardianForm);
-      sbClient.from('posts').insert({
-        guardian_name: fd.get('Name'),
-        guardian_phone: fd.get('Phone'),
-        guardian_address: fd.get('Exact address'),
-        subject: fd.get('Subjects needed'),
-        curriculum: fd.get('Curriculum'),
-        grade: fd.get('Grade'),
-        institution_name: fd.get('Institution name'),
-        budget: fd.get('Budget'),
-        start_date: fd.get('Preferred start date'),
-        notes: fd.get('Notes')
-      }).then(({ error }) => { if(error) console.error('Post creation failed:', error.message); });
-    });
   }
 
   // Load and render the open posts noticeboard
