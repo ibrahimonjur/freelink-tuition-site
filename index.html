@@ -568,7 +568,7 @@
 
 <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
   const revealEls = document.querySelectorAll('.reveal');
@@ -593,7 +593,12 @@
 
   const SUPABASE_URL = 'https://aqxxhskxspopyoqudniw.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFxeHhoc2t4c3BvcHlvcXVkbml3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3NDUzNDksImV4cCI6MjEwMDMyMTM0OX0.FpdLE95boHpS4ujGAVkm8d-mWb-gYuJCV_j2EC63iw4';
-  const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  let sbClient = null;
+  try {
+    sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  } catch(err) {
+    console.error('Supabase client failed to initialize:', err);
+  }
 
   // When a guardian registers, also create a public post
   const guardianForm = document.querySelector('form[data-role="guardian"]');
@@ -618,6 +623,7 @@
   // Load and render the open posts noticeboard
   async function loadPosts(){
     const listEl = document.getElementById('posts-list');
+    if(!sbClient){ listEl.innerHTML = '<p style="color:var(--ink-soft);">Posts are temporarily unavailable.</p>'; return; }
     const { data, error } = await sbClient.from('posts_public').select('*').limit(100);
     if(error){
       listEl.innerHTML = '<p style="color:var(--ink-soft);">Could not load posts right now.</p>';
