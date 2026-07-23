@@ -1,4 +1,4 @@
-]<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -279,6 +279,10 @@
     border:1.5px solid var(--ink); border-radius:10px;
     padding:22px 24px; background:var(--paper-dark);
     display:flex; flex-direction:column; gap:10px;
+  }
+  .post-image{
+    width:100%; max-width:340px; border-radius:8px;
+    border:1.5px solid var(--ink); margin-bottom:4px;
   }
   .post-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap; }
   .post-status{
@@ -630,6 +634,7 @@
       metaParts.push('<span><b>Posted:</b> ' + when + '</span>');
 
       card.innerHTML =
+        (post.image_url ? '<img src="' + escapeHtml(post.image_url) + '" alt="' + escapeHtml(post.subject || 'Tuition post') + '" class="post-image">' : '') +
         '<div class="post-top">' +
           '<div class="post-title">' + escapeHtml(post.subject || 'Tuition needed') + '</div>' +
           '<span class="post-status ' + post.status + '">' + statusLabel + '</span>' +
